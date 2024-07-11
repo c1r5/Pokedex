@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kapt.compiler)
-    id("com.google.dagger.hilt.android")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.logging.interceptor)
     implementation(libs.hilt.android)
+    implementation(libs.hilt.android.gradle.plugin)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.android.testing)
     implementation(libs.converter.gson)

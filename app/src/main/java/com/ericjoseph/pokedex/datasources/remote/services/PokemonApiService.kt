@@ -8,6 +8,6 @@ import retrofit2.http.QueryMap
 
 interface PokemonApiService {
     @GET("pokemon")
-    suspend fun getPokemonList(@QueryMap queryParams: Map<String, String>): Call<ResponseBody>
+    fun getPokemons(@QueryMap queryParams: Map<String, String>): Call<ResponseBody>
 
 }
