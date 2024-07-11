@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Pokédex</string>
+    <string name="search_pokemon">Pokemon name...</string>
+    <string name="name_field">Nome:</string>
+    <string name="pokemon_code_sample">#0001</string>
+    <string name="pokemon_name_sample">Bulbasaur</string>
+</resources>
