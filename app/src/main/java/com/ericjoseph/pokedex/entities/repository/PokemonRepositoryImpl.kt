@@ -2,7 +2,8 @@ package com.ericjoseph.pokedex.entities.repository
 
 import com.ericjoseph.pokedex.datasources.DataSourceModule.provideGson
 import com.ericjoseph.pokedex.datasources.DataSourceModule.providePokemonApiService
-import com.ericjoseph.pokedex.datasources.remote.models.GetPokemonResponseModel
+import com.ericjoseph.pokedex.datasources.dtos.Pokemon
+import com.ericjoseph.pokedex.datasources.dtos.PokemonListResponse
 import com.ericjoseph.pokedex.datasources.repository.PokemonRepository
 import com.ericjoseph.pokedex.di.AppModule.provideRetrofit
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +20,7 @@ class PokemonRepositoryImpl @Inject constructor() : PokemonRepository {
     override suspend fun getPokemons(
         offset: Int,
         limit: Int
-    ): GetPokemonResponseModel? {
+    ): PokemonListResponse? {
         val response = ioCoroutineScope.async {
             runCatching {
                 pokemonApiService.getPokemons(
@@ -29,7 +30,26 @@ class PokemonRepositoryImpl @Inject constructor() : PokemonRepository {
                     )
                 ).execute().body()?.use { body ->
                     val content = body.string()
-                    gson.fromJson(content, GetPokemonResponseModel::class.java)
+                    gson.fromJson(content, PokemonListResponse::class.java)
+                }
+            }
+        }.await()
+
+        response.onFailure { it.printStackTrace() }
+
+        return response.getOrNull()
+    }
+
+    override suspend fun getPokemon(name: String): Pokemon? {
+        val response = ioCoroutineScope.async {
+            runCatching {
+                pokemonApiService.getPokemon(name).execute().body()?.use { body ->
+                    val content = body.string()
+                    val mapJson = gson.fromJson(content, Map::class.java)
+                    Pokemon(
+                        name = mapJson["name"] as String,
+                        id = mapJson["id"] as Int,
+                    )
                 }
             }
         }.await()
