@@ -1,7 +1,9 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.Pokedex" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/holo_red_light</item>
         <item name="android:navigationBarColor">@android:color/holo_red_light</item>
     </style>
+
+    <style name="Theme.Pokedex.MaterialCards" parent="Widget.MaterialComponents.CardView" />
 </resources>

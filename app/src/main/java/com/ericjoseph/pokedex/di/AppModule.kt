@@ -1,6 +1,7 @@
 package com.ericjoseph.pokedex.di
 
 import com.ericjoseph.pokedex.datasources.remote.services.PokemonApiService
+import com.ericjoseph.pokedex.datasources.remote.services.PokemonSpriteService
 import com.ericjoseph.pokedex.datasources.repository.PokemonRepository
 import com.ericjoseph.pokedex.entities.repository.PokemonRepositoryImpl
 import dagger.Module
@@ -20,19 +21,34 @@ object AppModule {
     fun providePokemonRepository(): PokemonRepository = PokemonRepositoryImpl()
 
     @Provides
-    fun providePokemonApiService(retrofit: Retrofit): PokemonApiService = retrofit.create(PokemonApiService::class.java)
+    fun providePokemonApiService(retrofit: Retrofit): PokemonApiService =
+        retrofit.create(PokemonApiService::class.java)
 
     @Provides
-    fun provideRetrofit(): Retrofit {
+    fun providePokemonSpriteApiService(retrofit: Retrofit): PokemonSpriteService =
+        retrofit.create(PokemonSpriteService::class.java)
+
+    @Provides
+    fun providePokemonRetrofitClient(): Retrofit {
         return Retrofit.Builder()
             .baseUrl("https://pokeapi.co/api/v2/")
             .client(
                 OkHttpClient.Builder()
-                .addInterceptor(HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                })
-                .build()
-            )
-            .build()
+                    .addInterceptor(HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    }).build()
+            ).build()
+    }
+
+    @Provides
+    fun providePokemonSpriteRetrofitClient(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://img.pokemondb.net/sprites/")
+            .client(
+                OkHttpClient.Builder()
+                    .addInterceptor(HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    }).build()
+            ).build()
     }
 }

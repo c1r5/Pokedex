@@ -4,26 +4,49 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ericjoseph.pokedex.datasources.dtos.PokemonListResponse
-import com.ericjoseph.pokedex.entities.repository.PokemonRepositoryImpl
+import com.ericjoseph.pokedex.datasources.repository.PokemonRepository
+import com.ericjoseph.pokedex.ui.models.PokemonRecyclerViewItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PokemonViewModel @Inject constructor(
-    private var pokemonRepository: PokemonRepositoryImpl
+    private var pokemonRepository: PokemonRepository
 ) : ViewModel() {
     private val currentOffset = MutableStateFlow(0)
     private val nextOffset = MutableStateFlow(0)
     private val previousOffset = MutableStateFlow(0)
     private val defaultLimit = 20
+    private val _pokemonList = MutableStateFlow<List<PokemonRecyclerViewItem>>(emptyList())
+
+    val pokemonList = _pokemonList.asStateFlow()
+
     fun loadPokemonList() {
         viewModelScope.launch {
             currentOffset.collect { offset ->
-                val response = pokemonRepository.getPokemons(offset, defaultLimit)?.let {
+                pokemonRepository.getPokemons(offset, defaultLimit)?.let {
                     setPages(it)
                     it.results
+                }?.mapNotNull { pokemon ->
+                    val name = pokemon.name
+                    val id = pokemon.url?.split("/")?.last { it.isNotEmpty() }
+
+                    if (name != null && id != null) {
+                        pokemonRepository.getPokemonSprite(name)?.let {
+                            PokemonRecyclerViewItem(
+                                name = name,
+                                photoBitmap = it,
+                                code = id
+                            )
+                        }
+                    } else {
+                        null
+                    }
+                }?.let {
+                    _pokemonList.emit(it)
                 }
             }
         }
