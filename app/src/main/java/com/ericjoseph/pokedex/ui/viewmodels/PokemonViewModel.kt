@@ -1,11 +1,13 @@
 package com.ericjoseph.pokedex.ui.viewmodels
 
 import android.net.Uri
+import android.widget.GridView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ericjoseph.pokedex.datasources.dtos.PokemonListResponse
 import com.ericjoseph.pokedex.datasources.repository.PokemonRepository
-import com.ericjoseph.pokedex.ui.models.PokemonRecyclerViewItem
+import com.ericjoseph.pokedex.ui.adapters.PokemonGridViewAdapter
+import com.ericjoseph.pokedex.ui.models.PokemonViewItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,35 +21,38 @@ class PokemonViewModel @Inject constructor(
     private val currentOffset = MutableStateFlow(0)
     private val nextOffset = MutableStateFlow(0)
     private val previousOffset = MutableStateFlow(0)
-    private val defaultLimit = 20
-    private val _pokemonList = MutableStateFlow<List<PokemonRecyclerViewItem>>(emptyList())
+    private val defaultLimit = 15
 
+    private val _pokemonList = MutableStateFlow<MutableList<PokemonViewItem>>(mutableListOf())
+    private val _dataState = MutableStateFlow<DataState?>(null)
+
+    val dataState = _dataState.asStateFlow()
     val pokemonList = _pokemonList.asStateFlow()
 
-    fun loadPokemonList() {
-        viewModelScope.launch {
-            currentOffset.collect { offset ->
-                pokemonRepository.getPokemons(offset, defaultLimit)?.let {
-                    setPages(it)
-                    it.results
-                }?.mapNotNull { pokemon ->
-                    val name = pokemon.name
-                    val id = pokemon.url?.split("/")?.last { it.isNotEmpty() }
+    init {
+        refreshPokemonList()
+    }
 
-                    if (name != null && id != null) {
-                        pokemonRepository.getPokemonSprite(name)?.let {
-                            PokemonRecyclerViewItem(
-                                name = name,
-                                photoBitmap = it,
-                                code = id
-                            )
-                        }
-                    } else {
-                        null
-                    }
-                }?.let {
-                    _pokemonList.emit(it)
-                }
+    fun refreshPokemonList(offset: Int = currentOffset.value) {
+        viewModelScope.launch {
+            _dataState.emit(DataState.Loading)
+            val result = pokemonRepository.getPokemons(offset, defaultLimit)
+            val pokemonList = result?.results?.mapNotNull { pokemon ->
+                val name = pokemon.name ?: return@mapNotNull null
+                val id = pokemon.url?.split("/")?.last { it.isNotEmpty() } ?: return@mapNotNull null
+                val bitmap = pokemonRepository.getPokemonSprite(name) ?: return@mapNotNull null
+
+                PokemonViewItem(
+                    pokemonName = name,
+                    photoBitmap = bitmap,
+                    pokemonId = id.padStart(4, '0')
+                )
+            } ?: emptyList()
+            if (pokemonList.isNotEmpty()) {
+                _pokemonList.emit(pokemonList.toMutableList())
+                _dataState.emit(DataState.Success)
+            } else {
+                _dataState.emit(DataState.Error)
             }
         }
     }
@@ -65,14 +70,33 @@ class PokemonViewModel @Inject constructor(
     }
 
     fun nextPage() {
-        viewModelScope.launch {
-            currentOffset.emit(nextOffset.value)
-        }
+        refreshPokemonList(nextOffset.value)
     }
 
     fun previousPage() {
+        refreshPokemonList(previousOffset.value)
+    }
+
+    fun loadPokemonsIntoGridView(gridView: GridView) {
+        gridView.adapter = PokemonGridViewAdapter(gridView.context, pokemonList.value)
         viewModelScope.launch {
-            currentOffset.emit(previousOffset.value)
+            pokemonList.collect { pokemonList ->
+                (gridView.adapter as PokemonGridViewAdapter).updateList(pokemonList)
+            }
         }
     }
+
+    fun setOnDataStateChangeListener(listener: (DataState) -> Unit) {
+        viewModelScope.launch {
+            dataState.collect { dataState ->
+                dataState?.let { listener(it) }
+            }
+        }
+    }
+}
+
+enum class DataState {
+    Loading,
+    Success,
+    Error
 }

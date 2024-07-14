@@ -7,20 +7,20 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ericjoseph.pokedex.R
-import com.ericjoseph.pokedex.ui.models.PokemonRecyclerViewItem
+import com.ericjoseph.pokedex.ui.models.PokemonViewItem
 
-class PokemonListAdapter(
-    private val pokemonItem: MutableList<PokemonRecyclerViewItem>
-) : RecyclerView.Adapter<PokemonListAdapter.PokemonViewHolder>() {
+class PokemonRecyclerViewAdapter(
+    private val pokemonItem: MutableList<PokemonViewItem>
+) : RecyclerView.Adapter<PokemonRecyclerViewAdapter.PokemonViewHolder>() {
 
     open class PokemonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivPokemon: ImageView = itemView.findViewById(R.id.iv_pokemon)
         val tvPokemonCode: TextView = itemView.findViewById(R.id.tv_pokemon_code)
         val tvPokemonName: TextView = itemView.findViewById(R.id.tv_pokemon_name)
 
-        fun bind(item: PokemonRecyclerViewItem) {
-            tvPokemonCode.text = item.code
-            tvPokemonName.text = item.name
+        fun bind(item: PokemonViewItem) {
+            tvPokemonCode.text = item.pokemonId
+            tvPokemonName.text = item.pokemonName
             ivPokemon.setImageBitmap(item.photoBitmap)
         }
 
@@ -30,8 +30,7 @@ class PokemonListAdapter(
         parent: ViewGroup,
         viewType: Int
     ): PokemonViewHolder {
-        //TODO("Not yet implemented")
-        val view = View.inflate(parent.context, R.layout.recycler_view_item, null)
+        val view = View.inflate(parent.context, R.layout.pokemon_view_item, null)
         return PokemonViewHolder(view)
     }
 
@@ -44,15 +43,16 @@ class PokemonListAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateList(newList: List<PokemonRecyclerViewItem>) {
+    fun updateList(newList: List<PokemonViewItem>) {
         pokemonItem.clear()
         pokemonItem.addAll(newList)
         notifyDataSetChanged()
     }
 
-    fun addItem(item: PokemonRecyclerViewItem) {
+    fun addItem(item: PokemonViewItem) {
         pokemonItem.add(item)
         notifyItemInserted(pokemonItem.size - 1)
     }
+
 
 }

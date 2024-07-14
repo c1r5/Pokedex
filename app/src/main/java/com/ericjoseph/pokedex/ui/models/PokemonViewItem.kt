@@ -2,8 +2,8 @@ package com.ericjoseph.pokedex.ui.models
 
 import android.graphics.Bitmap
 
-data class PokemonRecyclerViewItem(
-    val name: String,
+data class PokemonViewItem(
+    val pokemonName: String,
     val photoBitmap: Bitmap,
-    val code: String,
+    val pokemonId: String,
 )

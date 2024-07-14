@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.gradle.plugin)
+    implementation(libs.androidx.swiperefreshlayout)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.android.testing)
     implementation(libs.converter.gson)

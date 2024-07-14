@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
     android:layout_margin="10dp">
 
     <com.google.android.material.card.MaterialCardView
-        style="@style/Theme.Pokedex.MaterialCards"
-        android:layout_width="120dp"
-        android:layout_height="170dp"
+        style="@style/Theme.Pokedex.MaterialCardView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:cardCornerRadius="18dp"
         app:cardUseCompatPadding="true"
         app:contentPadding="10dp">
@@ -22,8 +22,8 @@
 
             <ImageView
                 android:id="@+id/iv_pokemon"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/bulbasaur" />
 
@@ -37,23 +37,34 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_pokemon_code"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/pokemon_code_sample"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/Theme.Pokedex.TextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="#"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/tv_pokemon_code"
+                        style="@style/Theme.Pokedex.TextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pokemon_code_sample" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_pokemon_name"
+                    style="@style/Theme.Pokedex.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:text="@string/pokemon_name_sample"
-                    android:textColor="@color/black" />
+                    android:text="@string/pokemon_name_sample" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+</LinearLayout>
