@@ -37,7 +37,9 @@ class PokemonViewModel @Inject constructor(
         viewModelScope.launch {
             _dataState.emit(DataState.Loading)
             val result = pokemonRepository.getPokemons(offset, defaultLimit)
-            val pokemonList = result?.results?.mapNotNull { pokemon ->
+                ?: return@launch _dataState.emit(DataState.Error)
+            setPages(result)
+            val pokemonList = result.results.mapNotNull { pokemon ->
                 val name = pokemon.name ?: return@mapNotNull null
                 val id = pokemon.url?.split("/")?.last { it.isNotEmpty() } ?: return@mapNotNull null
                 val bitmap = pokemonRepository.getPokemonSprite(name) ?: return@mapNotNull null
@@ -47,7 +49,8 @@ class PokemonViewModel @Inject constructor(
                     photoBitmap = bitmap,
                     pokemonId = id.padStart(4, '0')
                 )
-            } ?: emptyList()
+            }
+
             if (pokemonList.isNotEmpty()) {
                 _pokemonList.emit(pokemonList.toMutableList())
                 _dataState.emit(DataState.Success)
